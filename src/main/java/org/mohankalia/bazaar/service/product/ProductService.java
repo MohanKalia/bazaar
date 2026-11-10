@@ -1,4 +1,76 @@
 package org.mohankalia.bazaar.service.product;
 
-public class ProductService {
+import lombok.RequiredArgsConstructor;
+import org.mohankalia.bazaar.Exceptions.ProductNotFoundException;
+import org.mohankalia.bazaar.model.Product;
+import org.mohankalia.bazaar.repository.ProductRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class ProductService implements IProductService {
+
+    private ProductRepository productRepository;
+
+    @Override
+    public Product addProduct(Product product) {
+        return null;
+    }
+
+    @Override
+    public Product getProductById(Long id) {
+
+        return productRepository.findById(id).
+                orElseThrow(() -> new ProductNotFoundException("Product Not Found"));
+    }
+
+    @Override
+    public void deleteProductById(Long id) {
+        productRepository.findById(id).ifPresentOrElse(productRepository::delete,
+                () -> {
+                    throw new ProductNotFoundException("Product Not Found");
+                });
+    }
+
+    @Override
+    public void updateProduct(Product product, Long id) {
+
+    }
+
+    @Override
+    public List<Product> getAllProducts() {
+        return productRepository.findAll();
+    }
+
+    @Override
+    public List<Product> getProductsByCategory(String category) {
+        return productRepository.findByCategoryName(category);
+    }
+
+    @Override
+    public List<Product> getProductsByBrand(String name) {
+        return productRepository.findByBrand(name);
+    }
+
+    @Override
+    public List<Product> getProductsByCategoryAndBrand(String category, String brand) {
+        return productRepository.findByCategoryNameAndBrand(category, brand);
+    }
+
+    @Override
+    public List<Product> getProductsByName(String name) {
+        return productRepository.findByName(name);
+    }
+
+    @Override
+    public List<Product> getProductsByBrandAndName(String brand, String name) {
+        return productRepository.findByBrandAndName(brand, name);
+    }
+
+    @Override
+    public Long countPrdductsByBrandAndName(String brand, String name) {
+        return productRepository.countByBrandAndName(brand, name);
+    }
 }
