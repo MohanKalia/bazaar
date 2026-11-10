@@ -2,21 +2,49 @@ package org.mohankalia.bazaar.service.product;
 
 import lombok.RequiredArgsConstructor;
 import org.mohankalia.bazaar.Exceptions.ProductNotFoundException;
+import org.mohankalia.bazaar.model.Category;
 import org.mohankalia.bazaar.model.Product;
+import org.mohankalia.bazaar.repository.CategoryRepository;
 import org.mohankalia.bazaar.repository.ProductRepository;
+import org.mohankalia.bazaar.requests.AddProductRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService implements IProductService {
 
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
     @Override
-    public Product addProduct(Product product) {
-        return null;
+    public Product addProduct(AddProductRequest product) {
+        // check if category is found! in the database
+        // if yes set it as the new product Category
+        // if no then save it as a new category then set as the new product in the category
+
+        Category category = Optional.ofNullable(categoryRepository.findByName(product.getCategory().getName()))
+                .orElseGet(() -> {
+                    Category newCategory = new Category(product.getCategory().getName());
+                    return categoryRepository.save(newCategory);
+                });
+        product.setCategory(category);
+        return productRepository.save(createProduct(product, category));
+
+    }
+
+    private Product createProduct(AddProductRequest request, Category category) {
+        return new Product(
+                request.getName(),
+                request.getBrand(),
+                request.getInventory(),
+                request.getDescription(),
+                request.getPrice(),
+                category
+        );
     }
 
     @Override
