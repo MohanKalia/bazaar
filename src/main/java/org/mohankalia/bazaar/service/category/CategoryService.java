@@ -7,7 +7,6 @@ import org.mohankalia.bazaar.model.Category;
 import org.mohankalia.bazaar.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,12 +34,12 @@ public class CategoryService implements ICategoryService {
 
     @Override
     public Category addCategory(Category category) {
-    return Optional.of(category).filter(i -> !categoryRepository.findByName(i.getName()))
+    return Optional.of(category).filter(i -> !categoryRepository.existsByName(i.getName()))
             .map(categoryRepository::save).orElseThrow(()-> new AlreadyExistsException("Category already exists!"));
     }
 
     @Override
-    public Category updateCategory(Category category, Long id) {
+    public Optional<Category> updateCategory(Category category, Long id) {
         return Optional.of(categoryRepository.findById(id)
                 .map(i -> {
                     i.setName(category.getName());
