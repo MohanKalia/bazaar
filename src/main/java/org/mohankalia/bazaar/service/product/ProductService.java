@@ -7,7 +7,7 @@ import org.mohankalia.bazaar.model.Product;
 import org.mohankalia.bazaar.repository.CategoryRepository;
 import org.mohankalia.bazaar.repository.ProductRepository;
 import org.mohankalia.bazaar.requests.AddProductRequest;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mohankalia.bazaar.requests.ProductUpdateRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -63,9 +63,25 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public void updateProduct(Product product, Long id) {
+    public Product updateProduct(ProductUpdateRequest request, Long id) {
 
+        return productRepository.findById(id)
+                .map(i -> updateExistingProduct(i, request))
+                .map(productRepository::save)
+                .orElseThrow(() -> new ProductNotFoundException("Product Not Found"));
     }
+
+    public Product updateExistingProduct(Product existingProduct, ProductUpdateRequest request) {
+        existingProduct.setName(request.getName());
+        existingProduct.setBrand(request.getBrand());
+        existingProduct.setInventory(request.getInventory());
+        existingProduct.setDescription(request.getDescription());
+        existingProduct.setPrice(request.getPrice());
+        Category category = categoryRepository.findByName(request.getCategory().getName());
+        existingProduct.setCategory(category);
+        return existingProduct;
+    }
+
 
     @Override
     public List<Product> getAllProducts() {
